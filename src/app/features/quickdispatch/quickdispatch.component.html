@@ -1,0 +1,128 @@
+<m-container>
+
+  <div style="height: 220px;"></div>
+
+  <h2>QuickDispatch &mdash; Smart Delivery Route Tracker</h2>
+
+  <!-- ============= 1. MAP (also used to pick delivery location) ============= -->
+  <h3>Delivery Map</h3>
+  <p class="hint">
+    Blue marker is the warehouse. Click anywhere on the map to capture a
+    new delivery location, then fill in the form below.
+  </p>
+
+  <!-- App 4: Google Maps integrated into the page via this wrapper component. -->
+  <m-deliverymap
+    [deliveries]="deliveries"
+    [selectedDeliveryId]="selectedDeliveryId"
+    [generatingFor]="generatingFor"
+    (mapClick)="onMapClick($event)"
+    (markerClick)="onMarkerClick($event)"
+    (generateClick)="onGenerateClick($event)">
+  </m-deliverymap>
+
+  <!-- ============= 2. DATA ENTRY FORM ============= -->
+  <h3>Log a New Delivery Request</h3>
+
+  <div class="form-group">
+    <label>Customer Name:</label>
+    <input type="text" [(ngModel)]="customerNameInput" name="name"
+           placeholder="e.g. Ahmed Ali" />
+  </div>
+
+  <div class="form-group">
+    <label>Package Weight (kg, max 50):</label>
+    <input type="number" min="0" max="50" step="0.1"
+           [(ngModel)]="weightInput" name="weight" />
+  </div>
+
+  <div class="form-group">
+    <label>Priority:</label>
+    <select [(ngModel)]="priorityInput" name="priority">
+      <option value="">-- Select priority --</option>
+      <option value="Standard">Standard</option>
+      <option value="Express">Express</option>
+      <option value="Urgent">Urgent</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Delivery Location:</label>
+    <!-- App 4: @if / @else is Angular's new built-in control flow (replaces *ngIf). -->
+    @if (clickedLat !== null && clickedLng !== null) {
+      <p class="captured">
+        Captured: {{ clickedLat.toFixed(5) }}, {{ clickedLng.toFixed(5) }}
+      </p>
+    } @else {
+      <p class="muted">Click anywhere on the map above to set the location.</p>
+    }
+  </div>
+
+  <button class="save-btn" (click)="saveDelivery()">
+    Save to Firebase
+  </button>
+
+  @if (formError !== '') {
+    <p class="msg error">{{ formError }}</p>
+  }
+  @if (formSuccess !== '') {
+    <p class="msg success">{{ formSuccess }}</p>
+  }
+
+  <!-- ============= 3. SEARCHABLE TABLE (with nearest highlight) ============= -->
+  <h3>All Delivery Requests</h3>
+
+  <m-search-button (search)="onSearch($event)"></m-search-button>
+
+  <div class="table-wrap">
+    <table class="dispatch-table">
+      <thead>
+        <tr>
+          <th>Customer</th>
+          <th>Weight (kg)</th>
+          <th>Priority</th>
+          <th>Distance (km)</th>
+          <th>Instruction</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- App 4: @for is Angular's new control flow; track row.id so only changed rows re-render. -->
+        @for (row of deliveryRows; track row.id) {
+          <!-- App 4: same new @if control flow, used here to filter rows by the search term. -->
+          @if (
+            filterTerm === '' ||
+            row.customerName.toLowerCase().includes(filterTerm.toLowerCase()) ||
+            row.priority.toLowerCase().includes(filterTerm.toLowerCase())
+          ) {
+            <tr [class.nearest]="row.isNearest"
+                [class.selected]="row.id === selectedDeliveryId"
+                (click)="onMarkerClick(row.id!)">
+              <td>{{ row.customerName }}</td>
+              <td>{{ row.weight }}</td>
+              <td>
+                <span class="priority-badge" [class]="row.priority.toLowerCase()">
+                  {{ row.priority }}
+                </span>
+              </td>
+              <td>{{ row.distanceKm }}</td>
+              <td class="instruction-cell">{{ row.instruction || '—' }}</td>
+            </tr>
+          }
+        }
+        @if (deliveries.length === 0) {
+          <tr><td colspan="5" class="empty-msg">
+            No deliveries yet. Click a spot on the map and fill the form to add one.
+          </td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (nearestId !== null) {
+    <p class="legend">
+      <span class="nearest-swatch"></span>
+      Highlighted row is the <b>nearest pending delivery</b> to the warehouse.
+    </p>
+  }
+
+</m-container>

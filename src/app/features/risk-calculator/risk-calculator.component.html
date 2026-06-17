@@ -1,0 +1,59 @@
+<m-container>
+  <m-form-ula label="Total Score"
+              [class]="getCondition(totalScore)"
+              result="{{ totalScore }}"
+              (calculate)="calculate()">
+
+    <label>Gender:</label>
+    <select [(ngModel)]="gender" name="gender">
+      <option value="Female">Female</option>
+      <option value="Male">Male</option>
+    </select>
+
+    <label>Diabetes Mellitus:</label>
+    <select [(ngModel)]="diabetes" name="diabetes">
+      <option [ngValue]="false">No</option>
+      <option [ngValue]="true">Yes</option>
+    </select>
+
+    <label>CRRT:</label>
+    <select [(ngModel)]="crrt" name="crrt">
+      <option [ngValue]="false">No</option>
+      <option [ngValue]="true">Yes</option>
+    </select>
+
+    <label>WBC Count (cells/µL):</label>
+    <input type="number" [(ngModel)]="wbc" name="wbc" />
+
+    <label>Heart Rate (bpm):</label>
+    <input type="number" [(ngModel)]="heartRate" name="heartRate" />
+
+    <button type="submit" class="pure-button pure-menu-link">Calculate</button>
+  </m-form-ula>
+
+  <br>
+
+  <m-result-box [label]="'Readmission Risk'" [class]="getCondition(totalScore)">
+    {{ riskResult }}
+  </m-result-box>
+
+  @if (calculated) {
+    @if (totalScore < 35.9) {
+      <m-aha type="success" header="Very Low Risk">
+        Patient has less than 1% chance of readmission.
+      </m-aha>
+    } @else if (totalScore <= 73.8) {
+      <m-aha type="warning" header="Moderate Risk">
+        Patient has a moderate risk of readmission. Monitor closely.
+      </m-aha>
+    } @else if (totalScore <= 140.7) {
+      <m-aha type="warning" header="High Risk">
+        Patient has a high risk of readmission. Consider intervention.
+      </m-aha>
+    } @else {
+      <m-aha type="error" header="Critical Risk">
+        Patient has greater than 50% chance of readmission. Immediate action required!
+      </m-aha>
+    }
+  }
+</m-container>

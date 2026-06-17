@@ -1,6 +1,58 @@
 input[type="range"] {
-    width: 100%; 
+    width: 100%;
     background: #ddd;
     border-radius: 4px;
 }
-  
+
+.home-wrap {
+    padding: 120px 24px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.home-title {
+    text-align: center;
+    color: #1A2B4A;
+    margin-bottom: 0.25rem;
+}
+
+.home-sub {
+    text-align: center;
+    color: #64748b;
+    margin-bottom: 2rem;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.app-card {
+    display: block;
+    padding: 18px 18px 16px;
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+
+.app-card:hover {
+    transform: translateY(-2px);
+    border-color: #1A2B4A;
+    box-shadow: 0 6px 14px rgba(26,43,74,0.12);
+}
+
+.app-name {
+    color: #1A2B4A;
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+}
+
+.app-desc {
+    color: #475569;
+    margin: 0;
+    font-size: 0.85rem;
+}

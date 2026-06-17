@@ -1,0 +1,198 @@
+h2 {
+  text-align: center;
+  color: #c62828;
+  margin-bottom: 1.5rem;
+}
+
+h3 {
+  color: #1A2B4A;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.4rem;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0 0 0.5rem;
+}
+
+/* ---------- form ---------- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.6rem 0.8rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  width: 320px;
+  background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #1A2B4A;
+}
+
+.captured {
+  margin: 0;
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #1b5e20;
+  background: #e8f5e9;
+  border: 1px solid #2e7d32;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  width: fit-content;
+}
+
+.muted {
+  margin: 0;
+  font-style: italic;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.save-btn {
+  padding: 0.65rem 2rem;
+  background: #1A2B4A;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.save-btn:hover { background: #2d4a7a; }
+
+/* ---------- messages ---------- */
+.msg {
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  max-width: 480px;
+}
+
+.msg.error {
+  background: #ffebee;
+  border: 2px solid #c62828;
+  color: #b71c1c;
+}
+
+.msg.success {
+  background: #e8f5e9;
+  border: 2px solid #2e7d32;
+  color: #1b5e20;
+}
+
+/* ---------- table ---------- */
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 0.6rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.dispatch-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.dispatch-table thead {
+  background: #1A2B4A;
+  color: white;
+}
+
+.dispatch-table th,
+.dispatch-table td {
+  padding: 0.55rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dispatch-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dispatch-table tbody tr:hover {
+  background: #f1f5f9;
+}
+
+.dispatch-table tr.selected {
+  background: #e3f2fd !important;
+}
+
+/* "Nearest pending delivery" — golden highlight per the spec. */
+.dispatch-table tr.nearest {
+  background: #fff8e1;
+  font-weight: 700;
+  border-left: 4px solid #f9a825;
+}
+
+.dispatch-table tr.nearest.selected {
+  background: #ffe0a3 !important;
+}
+
+.priority-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.priority-badge.standard { background: #2e7d32; }
+.priority-badge.express  { background: #f9a825; }
+.priority-badge.urgent   { background: #c62828; }
+
+.instruction-cell {
+  max-width: 280px;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.empty-msg {
+  text-align: center;
+  color: #777;
+  font-style: italic;
+  padding: 1.5rem !important;
+}
+
+.legend {
+  margin: 0.8rem 0 1.5rem;
+  font-size: 0.85rem;
+  color: #555;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nearest-swatch {
+  display: inline-block;
+  width: 20px;
+  height: 12px;
+  background: #fff8e1;
+  border-left: 4px solid #f9a825;
+  border-radius: 2px;
+}

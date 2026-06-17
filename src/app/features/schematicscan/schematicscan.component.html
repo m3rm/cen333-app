@@ -1,0 +1,116 @@
+<m-container>
+  <div style="height: 120px;"></div>
+  <h2>SchematicScan</h2>
+  <p>Snap a photo of a circuit schematic to identify and solve it.</p>
+
+  <!-- ============= 1. CAMERA PATH ============= -->
+  <!-- App 5: live camera via navigator.mediaDevices.getUserMedia. -->
+  @if (!isCameraOn) {
+    <button (click)="startCamera()">Use Camera</button>
+  }
+  @if (isCameraOn) {
+    <button (click)="capturePhoto()">Take Photo</button>
+    <button (click)="stopCamera()">Cancel</button>
+  }
+
+  <br><br>
+  <!-- App 5: #video is a template reference variable — @ViewChild('video') grabs this element in TS. -->
+  <video #video autoplay playsinline
+         [style.display]="isCameraOn ? 'block' : 'none'"
+         style="max-width: 100%; max-height: 400px;">
+  </video>
+  <!-- App 5: hidden canvas — we draw the current video frame onto it and export as a data URL. -->
+  <canvas #canvas style="display: none;"></canvas>
+
+  <!-- ============= 2. FILE UPLOAD PATH ============= -->
+  <!-- App 5: <input type="file"> fallback when no camera is available. -->
+  @if (!isCameraOn) {
+    <br><br>
+    <label>Or upload an image:</label>
+    <input type="file"
+           accept="image/*"
+           (change)="onFileSelected($event)">
+  }
+
+  <!-- ============= 3. SHARED PREVIEW ============= -->
+  @if (imagePreview && !isCameraOn) {
+    <br><br>
+    <img [src]="imagePreview"
+         alt="Captured schematic"
+         style="max-width: 100%; max-height: 400px;">
+  }
+
+  <!-- ============= 4. ANALYZE BUTTON ============= -->
+  @if (imagePreview) {
+    <br><br>
+    <button
+      (click)="analyzeSchematic()"
+      [disabled]="isAnalyzing">
+      @if (!isAnalyzing) { Analyze Circuit }
+      @if (isAnalyzing)  { Analyzing... }
+    </button>
+  }
+
+  @if (errorMessage) {
+    <p style="color: red;">{{ errorMessage }}</p>
+  }
+
+  <!-- ============= 5. RESULT ============= -->
+  @if (result) {
+    <br><br>
+    <div style="background: #f4f4f4; padding: 16px; border-radius: 8px;">
+      <h2>Circuit Analysis</h2>
+      <p><strong>Type:</strong> {{ result.circuitType }}</p>
+      <p><strong>Source:</strong>
+        {{ result.source.value }} {{ result.source.unit }}
+        ({{ result.source.type }})</p>
+      <p><strong>Confidence:</strong> {{ result.confidence }}</p>
+
+      <h3>Components</h3>
+      <ul>
+        @for (c of result.components; track c.id) {
+          <li>{{ c.id }}: {{ c.value }} {{ c.unit }} ({{ c.type }})</li>
+        }
+      </ul>
+
+      <h3>Totals</h3>
+      <p>Total resistance: {{ result.totals.totalResistance }} ohm</p>
+      <p>Total current: {{ result.totals.totalCurrent }} A</p>
+      <p>Total power: {{ result.totals.totalPower }} W</p>
+
+      <h3>Voltage Drops</h3>
+      <ul>
+        @for (v of result.voltageDrops; track v.id) {
+          <li>{{ v.id }}: {{ v.voltage }} V</li>
+        }
+      </ul>
+
+      <h3>Explanation</h3>
+      <p>{{ result.explanation }}</p>
+    </div>
+  }
+
+  <!-- ============= 6. HISTORY  ============= -->
+  @if (history.length > 0) {
+    <br><br>
+    <h2>Previous Scans</h2>
+    @for (entry of history; track $index) {
+      <div style="display: flex; gap: 12px;
+                  margin-bottom: 12px;
+                  padding: 8px;
+                  border: 1px solid #ccc;
+                  border-radius: 6px;">
+        <img [src]="entry.thumb"
+             style="width: 80px; height: 80px; object-fit: cover;">
+        <div>
+          <strong>{{ entry.result.circuitType }} circuit</strong>
+          <br>
+          Total R: {{ entry.result.totals.totalResistance }} ohm
+          <br>
+          Total I: {{ entry.result.totals.totalCurrent }} A
+        </div>
+      </div>
+    }
+    <button (click)="clearHistory()">Clear History</button>
+  }
+</m-container>

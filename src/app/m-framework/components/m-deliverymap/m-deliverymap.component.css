@@ -1,0 +1,67 @@
+.map-wrap {
+  margin-top: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.map-canvas {
+  width: 100%;
+  height: 480px;
+}
+
+/* Styles for the info window HTML built in TypeScript. They're scoped
+   via ::ng-deep because the info window's DOM lives outside this
+   component's view-encapsulation root. */
+::ng-deep .iw-wrap {
+  font-family: 'Quicksand', sans-serif;
+  min-width: 220px;
+}
+
+::ng-deep .iw-title {
+  margin: 0 0 6px;
+  color: #c62828;
+  font-size: 16px;
+}
+
+::ng-deep .iw-line {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+::ng-deep .iw-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: white;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+::ng-deep .iw-instruction {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: #fff8e1;
+  border: 1px solid #f9a825;
+  border-radius: 6px;
+  color: #e65100;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+::ng-deep .iw-gen-btn {
+  margin-top: 8px;
+  padding: 6px 14px;
+  background: #1A2B4A;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+::ng-deep .iw-gen-btn:disabled {
+  background: #888;
+  cursor: not-allowed;
+}

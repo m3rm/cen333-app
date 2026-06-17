@@ -1,15 +1,15 @@
 <m-container>
-  <br><br>
-  <button class="pure-button" (click)="goToPowerPlant()">
-    Power Plant Monitor
-  </button>
+  <div class="home-wrap">
+    <h1 class="home-title">CEN333 / BME433 Assignments</h1>
+    <p class="home-sub">Pick an app below, or use the menu at the top.</p>
 
-  <button class="pure-button" (click)="goToCropguard()">
-    Cropguard Monitor
-  </button>
-  <button class="pure-button" (click)="goVitalTrend()">
-    Vital Trend
-  </button>
+    <div class="app-grid">
+      <a *ngFor="let app of apps" [routerLink]="[app.path]" class="app-card">
+        <h3 class="app-name">{{ app.label }}</h3>
+        <p class="app-desc">{{ app.desc }}</p>
+      </a>
+    </div>
+  </div>
 </m-container>
     
 

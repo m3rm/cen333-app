@@ -1,0 +1,218 @@
+<m-container>
+  <div style="height: 120px;"></div>
+
+  <!-- Demo: educational-use disclaimer required by the assignment brief. -->
+  <div class="disclaimer">
+    <strong>Educational use only.</strong>
+    PillSnap can misidentify pills. Never take or stop medication based on this app.
+    Always verify with a pharmacist or doctor.
+  </div>
+
+  <h2>PillSnap &mdash; Cloud Medication Identifier</h2>
+
+  <!-- ============= 1. CAPTURE / UPLOAD ============= -->
+  <h3>1. Take or Upload a Photo</h3>
+
+  <!-- Demo: live camera path — opens the webcam via getUserMedia. -->
+  @if (!isCameraOn) {
+    <button (click)="startCamera()">Use Camera</button>
+  }
+  @if (isCameraOn) {
+    <button (click)="capturePhoto()">Take Photo</button>
+    <button (click)="stopCamera()">Cancel</button>
+  }
+
+  <br><br>
+  <video #video autoplay playsinline
+         [style.display]="isCameraOn ? 'block' : 'none'"
+         style="max-width: 100%; max-height: 320px;"></video>
+  <canvas #canvas style="display: none;"></canvas>
+
+  <!-- Demo: file-upload fallback when no camera is available. -->
+  @if (!isCameraOn) {
+    <br>
+    <label>Or upload an image:</label>
+    <input type="file" accept="image/*" (change)="onFileSelected($event)">
+  }
+
+  @if (imagePreview && !isCameraOn) {
+    <br><br>
+    <img [src]="imagePreview" alt="Pill"
+         style="max-width: 220px; max-height: 220px; border-radius: 8px;">
+  }
+
+  <!-- Demo: button is disabled while Gemini Vision is thinking. -->
+  @if (imagePreview && !pending && !isCameraOn) {
+    <br><br>
+    <button (click)="analyzeMedication()" [disabled]="isAnalyzing">
+      @if (!isAnalyzing) { Analyze with Gemini }
+      @if (isAnalyzing)  { Analyzing... }
+    </button>
+  }
+
+  @if (analysisError) {
+    <p class="msg error">{{ analysisError }}</p>
+  }
+
+  <!-- ============= 2. GEMINI RESULT + SAVE ============= -->
+  <!-- Demo: shows the parsed Gemini JSON — name, ingredient, dosage, uses, warnings, confidence. -->
+  @if (pending) {
+    <div class="result-box">
+      <h3>Gemini Analysis</h3>
+      <p><strong>Name:</strong> {{ pending.name }}</p>
+      <p><strong>Active ingredient:</strong> {{ pending.activeIngredient }}</p>
+      <p><strong>Typical dosage:</strong> {{ pending.dosage }}</p>
+      <p><strong>Confidence:</strong> {{ pending.confidence }}</p>
+
+      <p><strong>Common uses:</strong></p>
+      <ul>
+        @for (u of pending.uses; track u) { <li>{{ u }}</li> }
+      </ul>
+
+      <p><strong>Warnings:</strong></p>
+      <ul>
+        @for (w of pending.warnings; track w) { <li>{{ w }}</li> }
+      </ul>
+
+      <div class="form-group">
+        <label>Nickname (optional):</label>
+        <input type="text" [(ngModel)]="nicknameInput"
+               placeholder="e.g. morning blood pressure pill">
+      </div>
+
+      <button class="save-btn" (click)="saveToLibrary()">Save to Library</button>
+    </div>
+  }
+
+  <!-- ============= 3. MEDICATION LIBRARY ============= -->
+  <h3>2. Medication Library</h3>
+
+  <!-- Demo: search filters by name, nickname, or active ingredient — live as you type. -->
+  <m-search-button (search)="libraryFilter = $event"></m-search-button>
+
+  @if (filteredMedications.length === 0) {
+    <p class="muted">No medications saved yet — analyze a photo above to add one.</p>
+  }
+
+  <!-- Demo: one card per medication, real-time from Firebase. -->
+  <div class="card-grid">
+    @for (med of filteredMedications; track med.id) {
+      <div class="med-card">
+        @if (med.thumb) {
+          <img [src]="med.thumb" class="med-thumb">
+        }
+        <div class="med-body">
+          <h4>{{ med.nickname || med.name }}</h4>
+          <p class="ingredient">{{ med.activeIngredient }}</p>
+          <p class="dose-count">Logged {{ countDosesFor(med.id!) }} times</p>
+
+          <!-- Demo: Log Dose pre-fills the form; View Details expands the full Gemini info. -->
+          <div class="card-actions">
+            <button (click)="prefillDoseFromCard(med)">Log Dose</button>
+            <button (click)="toggleExpanded(med.id!)">
+              @if (expandedId === med.id) { Hide Details } @else { View Details }
+            </button>
+          </div>
+
+          @if (expandedId === med.id) {
+            <div class="details">
+              <p><strong>Name:</strong> {{ med.name }}</p>
+              <p><strong>Typical dosage:</strong> {{ med.dosage }}</p>
+              <p><strong>Confidence:</strong> {{ med.confidence }}</p>
+              <p><strong>Uses:</strong></p>
+              <ul>
+                @for (u of med.uses; track u) { <li>{{ u }}</li> }
+              </ul>
+              <p><strong>Warnings:</strong></p>
+              <ul>
+                @for (w of med.warnings; track w) { <li>{{ w }}</li> }
+              </ul>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ============= 4. DOSE FORM ============= -->
+  <!-- Demo: dose form — assignment requires validation against future date and >30 days past. -->
+  <h3 id="dose-form">3. Log a Dose</h3>
+
+  <div class="form-group">
+    <label>Medication:</label>
+    <select [(ngModel)]="doseMedicationId" name="doseMed">
+      <option value="">-- pick a medication --</option>
+      @for (m of medications; track m.id) {
+        <option [value]="m.id">{{ m.nickname || m.name }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Date/time taken:</label>
+    <input type="datetime-local" [(ngModel)]="doseTakenAt" name="doseTakenAt">
+  </div>
+
+  <div class="form-group">
+    <label>Notes (optional):</label>
+    <input type="text" [(ngModel)]="doseNotes" name="doseNotes"
+           placeholder="e.g. with food, felt drowsy after">
+  </div>
+
+  <button class="save-btn" (click)="logDose()">Log Dose</button>
+
+  @if (doseError)   { <p class="msg error">{{ doseError }}</p> }
+  @if (doseSuccess) { <p class="msg success">{{ doseSuccess }}</p> }
+
+  <!-- ============= 5. INTAKE HISTORY ============= -->
+  <!-- Demo: full intake history table — sorted newest-first, searchable, most-recent row highlighted yellow. -->
+  <h3>4. Intake History</h3>
+
+  <m-search-button (search)="historyFilter = $event"></m-search-button>
+
+  @if (sortedDoses.length === 0) {
+    <p class="muted">No doses logged yet.</p>
+  }
+
+  <div class="table-wrap">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Medication</th>
+          <th>Taken at</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (d of sortedDoses; track d.id) {
+          <!-- Demo: [class.latest] adds the yellow background only to the newest dose row. -->
+          <tr [class.latest]="d.id === latestDoseId">
+            <td>
+              @if (thumbFor(d.medicationId)) {
+                <img [src]="thumbFor(d.medicationId)" class="row-thumb">
+              }
+            </td>
+            <td>{{ d.medicationName }}</td>
+            <td>{{ formatDate(d.takenAt) }}</td>
+            <td>{{ d.notes || '—' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============= 6. 7-DAY CHART ============= -->
+  <!-- Demo: 7-day intake chart — reuses the m-framework chart component from App 2. -->
+  <h3>5. Doses Over the Past 7 Days</h3>
+
+  <m-timeserieschart
+    label="Doses per day"
+    [data]="last7Days"
+    color="#1A2B4A"
+    [min]="0"
+    [max]="10"
+    unit="Doses">
+  </m-timeserieschart>
+
+</m-container>

@@ -1,0 +1,99 @@
+<m-container>
+  <div style="height: 120px;"></div>
+  <h2>GlucoTrack &mdash; Cloud Glucose Trend Predictor</h2>
+
+  <!-- ============= 1. DATA ENTRY FORM ============= -->
+  <h3>Log a New Glucose Reading</h3>
+
+  <div class="form-group">
+    <label>Patient ID:</label>
+    <input type="text" [(ngModel)]="patientIdInput" name="pid"
+           placeholder="e.g. P001" />
+  </div>
+
+  <div class="form-group">
+    <label>Hours Since Meal (0 - 12):</label>
+    <input type="number" min="0" max="12" step="0.1"
+           [(ngModel)]="hoursInput" name="hrs" />
+  </div>
+
+  <div class="form-group">
+    <label>Blood Glucose (mg/dL, 0 - 600):</label>
+    <input type="number" min="0" max="600" step="1"
+           [(ngModel)]="glucoseInput" name="glu" />
+  </div>
+
+  <button class="save-btn" (click)="saveReading()">
+    Save to Firebase
+  </button>
+
+  @if (formError !== '') {
+    <p class="msg error">{{ formError }}</p>
+  }
+  @if (formSuccess !== '') {
+    <p class="msg success">{{ formSuccess }}</p>
+  }
+
+  <!-- ============= 2. SEARCHABLE TABLE ============= -->
+  <h3>Logged Readings</h3>
+
+  <m-search-button (search)="filterTerm = $event"></m-search-button>
+
+  <m-table
+    [data]="readings"
+    [filterTerm]="filterTerm"
+    [showCaption]="true"
+    caption="Patient Readings">
+  </m-table>
+
+  <!-- ============= 3. REGRESSION + 4. CHART ============= -->
+  <h3>Polynomial Regression</h3>
+
+  <div class="form-group">
+    <label>Polynomial Degree:</label>
+    <select [(ngModel)]="selectedDegree" name="deg" (change)="onDegreeChange()">
+      <option [ngValue]="1">Degree 1 &mdash; Linear</option>
+      <option [ngValue]="2">Degree 2 &mdash; Quadratic</option>
+      <option [ngValue]="3">Degree 3 &mdash; Cubic</option>
+      <option [ngValue]="4">Degree 4 &mdash; Quartic</option>
+      <option [ngValue]="5">Degree 5 &mdash; Quintic</option>
+    </select>
+  </div>
+
+  @if (readings.length < selectedDegree + 1) {
+    <p class="muted">
+      Need at least {{ selectedDegree + 1 }} readings to fit a degree-{{ selectedDegree }} polynomial.
+    </p>
+  }
+
+  <m-regressionchart
+    [xData]="hoursArray"
+    [yData]="glucoseArray"
+    [degree]="selectedDegree"
+    [predictX]="predictX"
+    [predictY]="predictedY"
+    xLabel="Hours Since Meal"
+    yLabel="Blood Glucose (mg/dL)">
+  </m-regressionchart>
+
+  <!-- ============= 5. FUTURE PREDICTION ============= -->
+  <h3>Predict Future Glucose</h3>
+
+  <div class="form-group">
+    <label>Future Hours Since Meal:</label>
+    <input type="number" min="0" step="0.1"
+           [(ngModel)]="predictX" name="px"
+           (ngModelChange)="onPredictChange()"
+           placeholder="Enter X to predict" />
+  </div>
+
+  @if (predictedY !== null) {
+    <p class="prediction-box">
+      Predicted Blood Glucose at {{ predictX }} h:
+      <strong>{{ predictedY }} mg/dL</strong>
+    </p>
+  } @else if (predictX !== null && predictX !== undefined && readings.length < selectedDegree + 1) {
+    <p class="muted">Add more readings to enable prediction.</p>
+  }
+
+</m-container>

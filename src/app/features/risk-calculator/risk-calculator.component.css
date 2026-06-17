@@ -1,0 +1,44 @@
+m-container {
+  display: block;
+  padding: 20px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1.5px solid #ddd;
+  font-size: 14px;
+  background: #f8f9fa;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: #1a73e8;
+  background: #fff;
+}
+
+button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 10px;
+  background: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1558b0;
+}

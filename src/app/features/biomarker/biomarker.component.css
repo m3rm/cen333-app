@@ -1,0 +1,52 @@
+/* Local styling for the biomarker monitoring feature. */
+
+.form-panel,
+.chart-panel,
+.alert-panel,
+.logs-panel,
+.logout-panel {
+  padding: 10px 0;
+}
+
+.form-panel label {
+  display: block;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  color: rgb(12, 35, 64);
+}
+
+.form-panel input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 2px solid rgb(12, 35, 64);
+  font-size: 16px;
+}
+
+
+.form-error {
+  color: #c62828;
+  background: #fdecea;
+  border: 1px solid #f5c2c0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-top: 14px;
+  font-weight: 600;
+}
+
+.form-success {
+  color: #2e7d32;
+  background: #e8f5e9;
+  border: 1px solid #b7dfb9;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-top: 14px;
+  font-weight: 600;
+}
+
+
+.alert-panel m-result-box {
+  display: block;
+  margin: 10px 0;
+}

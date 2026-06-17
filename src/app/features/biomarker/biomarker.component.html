@@ -1,0 +1,143 @@
+<m-container>
+<div style="height: 80px;"></div>
+  <m-main-menu
+    [menuitems]="['Log Reading', 'View Charts', 'View Alerts', 'View Logs', 'Logout']"
+    (menuclick)="onMenuClick($event)">
+  </m-main-menu>
+
+  <!-- ================= LOG READING ================= -->
+  @if (activeSection === 'Log Reading') {
+    <div class="form-panel">
+      <h3>Log a New Biomarker Reading</h3>
+
+      <label>Patient Name:</label>
+      <input type="text" [(ngModel)]="patientName" placeholder="e.g. Mohamed Ali" />
+
+      <label>Test Date:</label>
+      <input type="date" [(ngModel)]="testDate" />
+
+      <label>LDL Cholesterol (mg/dL, 0&ndash;300):</label>
+      <input type="number" min="0" max="300" [(ngModel)]="ldlValue"
+             placeholder="Enter LDL value" />
+
+      <label>TSH (mIU/L, 0&ndash;20):</label>
+      <input type="number" min="0" max="20" step="0.1" [(ngModel)]="tshValue"
+             placeholder="Enter TSH value" />
+
+      <label>CRP (mg/L, 0&ndash;200):</label>
+      <input type="number" min="0" max="200" step="0.1" [(ngModel)]="crpValue"
+             placeholder="Enter CRP value" />
+
+      <button class="pure-button" (click)="saveReading()">Save Reading</button>
+
+      @if (validationError !== '') {
+        <p class="form-error">{{ validationError }}</p>
+      }
+      @if (formSuccess !== '') {
+        <p class="form-success">{{ formSuccess }}</p>
+      }
+    </div>
+  }
+
+  <!-- ================= VIEW CHARTS ================= -->
+  @if (activeSection === 'View Charts') {
+    <div class="chart-panel">
+      <h3>LDL Cholesterol Trend</h3>
+      <m-timeserieschart
+        [label]="'LDL Cholesterol'"
+        [data]="ldlReadings"
+        [color]="'#c62828'"
+        [min]="0"
+        [max]="300"
+        [unit]="'mg/dL'">
+      </m-timeserieschart>
+
+      <h3>TSH Trend</h3>
+      <m-timeserieschart
+        [label]="'TSH'"
+        [data]="tshReadings"
+        [color]="'#6a1b9a'"
+        [min]="0"
+        [max]="20"
+        [unit]="'mIU/L'">
+      </m-timeserieschart>
+
+      <h3>CRP Trend</h3>
+      <m-timeserieschart
+        [label]="'CRP'"
+        [data]="crpReadings"
+        [color]="'#1565c0'"
+        [min]="0"
+        [max]="200"
+        [unit]="'mg/L'">
+      </m-timeserieschart>
+    </div>
+  }
+
+  <!-- ================= VIEW ALERTS ================= -->
+  @if (activeSection === 'View Alerts') {
+    <div class="alert-panel">
+      <h3>Latest Reading Status</h3>
+
+      @if (latestReading === undefined) {
+        <m-result-box label="No Data" class="warning">
+          No biomarker readings have been logged yet.
+        </m-result-box>
+      } @else {
+        <p>
+          <strong>Patient:</strong> {{ latestReading.patientName }}
+          &nbsp;|&nbsp;
+          <strong>Date:</strong> {{ latestReading.testDate }}
+        </p>
+
+        <m-result-box
+          [label]="'LDL (' + getLdlStatus(latestReading.ldl).header + ')'"
+          [class]="getLdlStatus(latestReading.ldl).type">
+          {{ getLdlStatus(latestReading.ldl).message }}
+        </m-result-box>
+
+        <m-result-box
+          [label]="'TSH (' + getTshStatus(latestReading.tsh).header + ')'"
+          [class]="getTshStatus(latestReading.tsh).type">
+          {{ getTshStatus(latestReading.tsh).message }}
+        </m-result-box>
+
+        <m-result-box
+          [label]="'CRP (' + getCrpStatus(latestReading.crp).header + ')'"
+          [class]="getCrpStatus(latestReading.crp).type">
+          {{ getCrpStatus(latestReading.crp).message }}
+        </m-result-box>
+      }
+    </div>
+  }
+
+  <!-- ================= VIEW LOGS ================= -->
+  @if (activeSection === 'View Logs') {
+    <div class="logs-panel">
+      <h3>All Logged Readings</h3>
+
+    
+      <m-search-button (search)="filterTerm = $event"></m-search-button>
+
+      @if (readings.length === 0) {
+        <p>No readings logged yet.</p>
+      } @else {
+        <m-table
+          [data]="readings"
+          [filterTerm]="filterTerm"
+          [tableHeaders]="tableHeaders"
+          [columnsToBeDisplayed]="columnsToBeDisplayed">
+        </m-table>
+      }
+    </div>
+  }
+
+  <!-- ================= LOGOUT ================= -->
+  @if (activeSection === 'Logout') {
+    <div class="logout-panel">
+      <p>Are you sure you want to log out?</p>
+      <button class="pure-button" (click)="logout()">Confirm Logout</button>
+    </div>
+  }
+
+</m-container>

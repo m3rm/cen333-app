@@ -19,6 +19,10 @@ export class MRegressionchartComponent
   @Input() xLabel: string = 'X';
   @Input() yLabel: string = 'Y';
 
+  // Optional prediction marker (used by GlucoTrack — passes a future X and the predicted Y).
+  @Input() predictX: number | null = null;
+  @Input() predictY: number | null = null;
+
   chartId: string = '';
   chart: any;
 
@@ -80,27 +84,51 @@ export class MRegressionchartComponent
     this.updateChart();
   }
   updateChart() {
-    if (!this.chart || this.xData.length < 2) return;
-    // Dataset 1 --- scatter: raw data points (blue dots)
+    if (!this.chart) return;
+
+    const haveEnough = this.xData.length >= this.degree + 1;
+
+    // Dataset 1 — scatter: raw data points (blue dots).
     const scatterData = this.xData.map((x, i) =>
       ({ x, y: this.yData[i] })
     );
-    // Compute regression coefficients and generate smooth curve
-    const coeffs = polynomialRegression(
-      this.xData, this.yData, this.degree
-    );
-    const minX = Math.min(...this.xData);
-    const maxX = Math.max(...this.xData);
-    const step = (maxX - minX) / 100;
-    const curvePoints: { x: number, y: number }[] = [];
-    for (let x = minX; x <= maxX; x += step) {
-      curvePoints.push({
-        x: Math.round(x * 10) / 10,
-        y: Math.round(evaluatePolynomial(coeffs, x) *100)/100
+
+    // Dataset 2 — regression curve (red line). Only when we have enough points.
+    let curvePoints: { x: number; y: number }[] = [];
+    if (haveEnough) {
+      const coeffs = polynomialRegression(
+        this.xData, this.yData, this.degree
+      );
+      const minX = Math.min(...this.xData);
+      let maxX = Math.max(...this.xData);
+      // Extend the curve out to the prediction X so the marker sits on the line.
+      if (this.predictX !== null && this.predictX !== undefined) {
+        maxX = Math.max(maxX, Number(this.predictX));
+      }
+      const step = (maxX - minX) / 100;
+      if (step > 0) {
+        for (let x = minX; x <= maxX; x += step) {
+          curvePoints.push({
+            x: Math.round(x * 10) / 10,
+            y: Math.round(evaluatePolynomial(coeffs, x) * 100) / 100
+          });
+        }
+      }
+    }
+
+    // Dataset 3 — prediction marker (amber diamond). Only when both predictX and predictY are set.
+    const predictionData: { x: number; y: number }[] = [];
+    if (
+      this.predictX !== null && this.predictX !== undefined &&
+      this.predictY !== null && this.predictY !== undefined
+    ) {
+      predictionData.push({
+        x: Number(this.predictX),
+        y: Number(this.predictY),
       });
     }
-     // Dataset 2 --- line: regression curve (red line)
-     this.chart.data.datasets = [
+
+    this.chart.data.datasets = [
       {
         label: 'Patient Data',
         type: 'scatter',
@@ -118,7 +146,18 @@ export class MRegressionchartComponent
         pointRadius: 0,
         borderWidth: 2.5,
         tension: 0.4
-      }
+      },
+      {
+        label: 'Predicted Value',
+        type: 'scatter',
+        data: predictionData,
+        backgroundColor: '#f9a825',
+        borderColor: '#e65100',
+        pointStyle: 'rectRot',
+        pointRadius: 12,
+        pointHoverRadius: 14,
+        borderWidth: 3,
+      },
     ];
 
     this.chart.update();
